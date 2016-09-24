@@ -12,7 +12,11 @@
 
 'use strict';
 
-var ReactPropTypeLocationNames = {};
+import type { ReactPropTypeLocations } from 'ReactPropTypeLocations';
+
+type NamesType = {[key: ReactPropTypeLocations]: string};
+
+var ReactPropTypeLocationNames: NamesType = {};
 
 if (__DEV__) {
   ReactPropTypeLocationNames = {

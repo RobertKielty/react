@@ -24,14 +24,19 @@ export type ReactInstance = {
   receiveComponent: any,
   performUpdateIfNecessary: any,
   updateComponent: any,
-  attachRef: any,
-  detachRef: any,
+  attachRef: (ref: string, component: ReactInstance) => void,
+  detachRef: (ref: string) => void,
   getName: () => string,
   getPublicInstance: any,
+  _rootNodeID: number,
+
+  // ReactDOMComponent
+  _tag: string,
 
   // instantiateReactComponent
   _mountIndex: number,
   _mountImage: any,
   // __DEV__
   _debugID: DebugID,
+  _warnedAboutRefsInRender: boolean,
 };

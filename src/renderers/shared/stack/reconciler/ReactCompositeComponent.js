@@ -21,7 +21,6 @@ var ReactNodeTypes = require('ReactNodeTypes');
 var ReactReconciler = require('ReactReconciler');
 
 if (__DEV__) {
-  var ReactPropTypeLocations = require('ReactPropTypeLocations');
   var checkReactTypeSpec = require('checkReactTypeSpec');
 }
 
@@ -30,6 +29,8 @@ var invariant = require('invariant');
 var shallowEqual = require('shallowEqual');
 var shouldUpdateReactComponent = require('shouldUpdateReactComponent');
 var warning = require('warning');
+
+import type { ReactPropTypeLocations } from 'ReactPropTypeLocations';
 
 var CompositeTypes = {
   ImpureClass: 0,
@@ -125,7 +126,7 @@ var nextMountID = 1;
 /**
  * @lends {ReactCompositeComponent.prototype}
  */
-var ReactCompositeComponentMixin = {
+var ReactCompositeComponent = {
 
   /**
    * Base constructor for all composite component.
@@ -617,7 +618,7 @@ var ReactCompositeComponentMixin = {
         this._checkContextTypes(
           Component.contextTypes,
           maskedContext,
-          ReactPropTypeLocations.context
+          'context'
         );
       }
     }
@@ -658,7 +659,7 @@ var ReactCompositeComponentMixin = {
         this._checkContextTypes(
           Component.childContextTypes,
           childContext,
-          ReactPropTypeLocations.childContext
+          'childContext'
         );
       }
       for (var name in childContext) {
@@ -682,7 +683,11 @@ var ReactCompositeComponentMixin = {
    * @param {string} location e.g. "prop", "context", "child context"
    * @private
    */
-  _checkContextTypes: function(typeSpecs, values, location) {
+  _checkContextTypes: function(
+    typeSpecs,
+    values,
+    location: ReactPropTypeLocations,
+  ) {
     if (__DEV__) {
       checkReactTypeSpec(
         typeSpecs,
@@ -1095,14 +1100,16 @@ var ReactCompositeComponentMixin = {
    * @final
    * @private
    */
-  attachRef: function(ref, component) {
+  attachRef: function(ref, component, transaction) {
     var inst = this.getPublicInstance();
     invariant(inst != null, 'Stateless function components cannot have refs.');
-    var publicComponentInstance = component.getPublicInstance();
+    var publicComponentInstance = component.getPublicInstance(transaction);
     if (__DEV__) {
       var componentName = component && component.getName ?
         component.getName() : 'a component';
-      warning(publicComponentInstance != null,
+      warning(
+        publicComponentInstance != null ||
+        component._compositeType !== CompositeTypes.StatelessFunctional,
         'Stateless function components cannot be given refs ' +
         '(See ref "%s" in %s created by %s). ' +
         'Attempts to access this ref will fail.',
@@ -1161,12 +1168,6 @@ var ReactCompositeComponentMixin = {
 
   // Stub
   _instantiateReactComponent: null,
-
-};
-
-var ReactCompositeComponent = {
-
-  Mixin: ReactCompositeComponentMixin,
 
 };
 
